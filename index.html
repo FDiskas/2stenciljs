@@ -1,0 +1,1883 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --chrome: #1a1b1e;
+        --chrome-border: #2e2f33;
+        --chrome-hover: #25262a;
+        --tab-active: #0d0e10;
+        --accent: #7f77dd;
+        --accent-dim: #3c3489;
+        --token-kw: #c792ea;
+        --token-str: #c3e88d;
+        --token-fn: #82aaff;
+        --token-num: #f78c6c;
+        --token-cmt: #546e7a;
+        --token-tag: #f07178;
+        --token-attr: #ffcb6b;
+        --editor-bg: #0d0e10;
+        --editor-fg: #cdd3de;
+        --line-num: #3a3d44;
+        --gutter: #161719;
+        --pill-bg: #23242a;
+        --pill-fg: #8b8fa8;
+        --pill-active-bg: #2d2e38;
+        --pill-active-fg: #cdd3de;
+        --status-ok: #3ddc84;
+        --status-err: #ff6b6b;
+        --status-idle: #8b8fa8;
+      }
+      body {
+        font-family: var(--font-sans, "ui-sans-serif", system-ui, sans-serif);
+        background: var(--chrome);
+        color: var(--editor-fg);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .titlebar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        height: 44px;
+        border-bottom: 1px solid var(--chrome-border);
+        flex-shrink: 0;
+        gap: 12px;
+      }
+      .titlebar-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .app-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .app-icon svg {
+        width: 11px;
+        height: 11px;
+        fill: none;
+        stroke: #fff;
+        stroke-width: 2;
+        stroke-linecap: round;
+      }
+      .app-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: #cdd3de;
+        letter-spacing: 0.01em;
+      }
+      .app-version {
+        font-size: 11px;
+        color: var(--pill-fg);
+        background: var(--pill-bg);
+        padding: 2px 7px;
+        border-radius: 4px;
+      }
+      .seg {
+        display: flex;
+        gap: 2px;
+        background: var(--tab-active);
+        border: 1px solid var(--chrome-border);
+        border-radius: 6px;
+        padding: 2px;
+      }
+      .stab {
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        border: none;
+        background: transparent;
+        color: var(--pill-fg);
+        cursor: pointer;
+        font-family: var(--font-mono, "ui-monospace", monospace);
+        transition:
+          background 0.12s,
+          color 0.12s;
+      }
+      .stab:hover {
+        background: var(--pill-bg);
+        color: var(--pill-active-fg);
+      }
+      .stab.active {
+        background: var(--pill-active-bg);
+        color: var(--pill-active-fg);
+      }
+      .titlebar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .icon-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 5px;
+        border: 1px solid var(--chrome-border);
+        background: transparent;
+        color: var(--pill-fg);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .icon-btn:hover {
+        background: var(--chrome-hover);
+        color: var(--pill-active-fg);
+      }
+      .icon-btn svg {
+        width: 13px;
+        height: 13px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .run-btn {
+        height: 28px;
+        padding: 0 14px;
+        border-radius: 5px;
+        border: none;
+        background: var(--accent);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: inherit;
+        letter-spacing: 0.01em;
+      }
+      .run-btn:hover {
+        background: #8d86e0;
+      }
+      .run-btn:active {
+        transform: scale(0.97);
+      }
+      .run-btn svg {
+        width: 12px;
+        height: 12px;
+        fill: white;
+        stroke: none;
+      }
+      .samples-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0 16px;
+        height: 36px;
+        border-bottom: 1px solid var(--chrome-border);
+        flex-shrink: 0;
+        overflow-x: auto;
+      }
+      .samples-label {
+        font-size: 11px;
+        color: var(--token-cmt);
+        white-space: nowrap;
+        font-family: var(--font-mono, "ui-monospace", monospace);
+      }
+      .sbtn {
+        font-size: 11px;
+        padding: 3px 10px;
+        border: 1px solid var(--chrome-border);
+        border-radius: 4px;
+        background: transparent;
+        color: var(--pill-fg);
+        cursor: pointer;
+        white-space: nowrap;
+        font-family: var(--font-mono, "ui-monospace", monospace);
+      }
+      .sbtn:hover {
+        background: var(--chrome-hover);
+        color: var(--pill-active-fg);
+        border-color: #3e3f47;
+      }
+      .editors {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+      .pane {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+      }
+      .pane + .pane {
+        border-left: 1px solid var(--chrome-border);
+      }
+      .pane-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        height: 36px;
+        border-bottom: 1px solid var(--chrome-border);
+        background: var(--chrome);
+        flex-shrink: 0;
+      }
+      .pane-header-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .pane-filename {
+        font-size: 12px;
+        color: #cdd3de;
+        font-family: var(--font-mono, "ui-monospace", monospace);
+      }
+      .pane-lang {
+        font-size: 10px;
+        color: var(--pill-fg);
+        background: var(--pill-bg);
+        padding: 1px 6px;
+        border-radius: 3px;
+        font-family: var(--font-mono, "ui-monospace", monospace);
+      }
+      .pane-actions {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .pane-action {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--pill-fg);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .pane-action:hover {
+        background: var(--chrome-hover);
+        color: var(--pill-active-fg);
+        border-color: var(--chrome-border);
+      }
+      .pane-action svg {
+        width: 12px;
+        height: 12px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .editor-wrap {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+      }
+      .line-nums {
+        flex-shrink: 0;
+        width: 44px;
+        background: var(--gutter);
+        border-right: 1px solid var(--chrome-border);
+        padding: 12px 0;
+        overflow: hidden;
+        user-select: none;
+      }
+      .line-num {
+        display: block;
+        text-align: right;
+        padding: 0 8px 0 0;
+        font-size: 11px;
+        line-height: 1.7;
+        color: var(--line-num);
+        font-family: var(--font-mono, "ui-monospace", monospace);
+      }
+      textarea {
+        flex: 1;
+        resize: none;
+        border: none;
+        outline: none;
+        font-family: var(--font-mono, "ui-monospace", monospace);
+        font-size: 12px;
+        line-height: 1.7;
+        padding: 12px;
+        background: var(--editor-bg);
+        color: var(--editor-fg);
+        tab-size: 2;
+        caret-color: #fff;
+        height: 100%;
+      }
+      textarea::placeholder {
+        color: var(--token-cmt);
+      }
+      .output-code {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+        font-family: var(--font-mono, "ui-monospace", monospace);
+        font-size: 12px;
+        line-height: 1.7;
+        background: var(--editor-bg);
+        color: var(--editor-fg);
+        white-space: pre;
+      }
+      .output-code.error {
+        color: var(--status-err);
+      }
+      .placeholder-msg {
+        color: var(--token-cmt);
+      }
+      .statusbar {
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        height: 28px;
+        border-top: 1px solid var(--chrome-border);
+        flex-shrink: 0;
+        background: var(--chrome);
+        gap: 16px;
+        overflow: hidden;
+      }
+      .st-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-right: 4px;
+      }
+      .st-item {
+        display: flex;
+        align-items: center;
+        font-size: 11px;
+        color: var(--pill-fg);
+        font-family: var(--font-mono, "ui-monospace", monospace);
+        white-space: nowrap;
+      }
+      .st-item + .st-item::before {
+        content: "";
+        width: 1px;
+        height: 12px;
+        background: var(--chrome-border);
+        margin-right: 16px;
+      }
+      .st-tag {
+        color: var(--token-attr);
+        margin-right: 3px;
+      }
+      .st-val {
+        color: var(--token-str);
+      }
+      .st-spacer {
+        flex: 1;
+      }
+      .st-kbd {
+        font-size: 10px;
+        color: var(--token-cmt);
+        background: var(--pill-bg);
+        padding: 1px 5px;
+        border-radius: 3px;
+        border: 1px solid var(--chrome-border);
+      }
+      .conv-badge {
+        display: none;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: rgba(61, 220, 132, 0.1);
+        color: #3ddc84;
+        border: 1px solid rgba(61, 220, 132, 0.2);
+        font-family: var(--font-mono, "ui-monospace", monospace);
+      }
+      .conv-badge svg {
+        width: 10px;
+        height: 10px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .hljs {
+        background: var(--editor-bg) !important;
+        padding: 0 !important;
+        font-size: 12px;
+        line-height: 1.7;
+        font-family: var(--font-mono, "ui-monospace", monospace);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="titlebar">
+      <div class="titlebar-left">
+        <div class="app-icon">
+          <svg viewBox="0 0 12 12"><path d="M2 6h8M6 2l4 4-4 4" /></svg>
+        </div>
+        <span class="app-name">stencil-converter</span>
+        <span class="app-version">v2.0</span>
+        <div
+          style="
+            width: 1px;
+            height: 16px;
+            background: var(--chrome-border);
+            margin: 0 4px;
+          "
+        ></div>
+        <div class="seg" id="source-tabs">
+          <button
+            type="button"
+            class="stab active"
+            onclick="setSource('react')"
+          >
+            React
+          </button>
+          <button type="button" class="stab" onclick="setSource('angular')">
+            Angular
+          </button>
+          <button type="button" class="stab" onclick="setSource('vue')">
+            Vue
+          </button>
+        </div>
+      </div>
+      <div class="titlebar-right">
+        <button
+          type="button"
+          class="icon-btn"
+          title="clear"
+          onclick="clearAll()"
+        >
+          <svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12" /></svg>
+        </button>
+        <button type="button" class="run-btn" onclick="runConvert()">
+          <svg viewBox="0 0 12 12"><polygon points="3,1 11,6 3,11" /></svg
+          >convert
+        </button>
+      </div>
+    </div>
+
+    <div class="editors">
+      <div class="pane">
+        <div class="pane-header">
+          <div class="pane-header-left">
+            <span class="pane-filename" id="input-filename">component.jsx</span>
+            <span class="pane-lang" id="input-lang">JSX</span>
+          </div>
+          <div class="pane-actions">
+            <button
+              type="button"
+              class="pane-action"
+              title="copy"
+              onclick="
+                navigator.clipboard.writeText(
+                  document.getElementById('inp').value,
+                )
+              "
+            >
+              <svg viewBox="0 0 14 14">
+                <rect x="4" y="4" width="8" height="8" rx="1" />
+                <path d="M2 10V2h8" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="editor-wrap" style="position: relative">
+          <div class="line-nums" id="line-nums-in"></div>
+          <div style="flex: 1; position: relative; overflow: hidden">
+            <pre
+              id="inp-hl"
+              aria-hidden="true"
+              style="
+                position: absolute;
+                inset: 0;
+                margin: 0;
+                padding: 12px;
+                font-family: var(
+                  --font-mono,
+                  &quot;ui-monospace&quot;,
+                  monospace
+                );
+                font-size: 12px;
+                line-height: 1.7;
+                background: var(--editor-bg);
+                overflow: hidden;
+                pointer-events: none;
+                white-space: pre-wrap;
+                word-break: break-all;
+                box-sizing: border-box;
+              "
+            ><code id="inp-hl-code" class="language-typescript"></code></pre>
+            <textarea
+              id="inp"
+              spellcheck="false"
+              placeholder="// paste your component here"
+              style="
+                position: absolute;
+                inset: 0;
+                background: transparent;
+                color: transparent;
+                caret-color: #fff;
+                resize: none;
+                border: none;
+                outline: none;
+                font-family: var(
+                  --font-mono,
+                  &quot;ui-monospace&quot;,
+                  monospace
+                );
+                font-size: 12px;
+                line-height: 1.7;
+                padding: 12px;
+                tab-size: 2;
+                width: 100%;
+                height: 100%;
+                box-sizing: border-box;
+                z-index: 1;
+              "
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="pane">
+        <div class="pane-header">
+          <div class="pane-header-left">
+            <span class="pane-filename">component.tsx</span>
+            <span class="pane-lang">TSX · StencilJS</span>
+          </div>
+          <div class="pane-actions">
+            <div id="conv-badge" class="conv-badge">
+              <svg viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" /></svg
+              >converted
+            </div>
+            <button
+              type="button"
+              class="pane-action"
+              title="copy output"
+              onclick="copyOutput()"
+            >
+              <svg viewBox="0 0 14 14">
+                <rect x="4" y="4" width="8" height="8" rx="1" />
+                <path d="M2 10V2h8" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="editor-wrap">
+          <div class="line-nums" id="line-nums-out"></div>
+          <div id="out" class="output-code">
+            <span class="placeholder-msg">// output will appear here</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="statusbar">
+      <div class="st-item">
+        <div
+          class="st-dot"
+          id="st-dot"
+          style="background: var(--status-idle)"
+        ></div>
+        <span id="st-status">ready</span>
+      </div>
+      <div class="st-item" id="st-props" style="display: none">
+        <span class="st-tag">@Prop</span
+        ><span class="st-val" id="st-props-val"></span>
+      </div>
+      <div class="st-item" id="st-state" style="display: none">
+        <span class="st-tag">@State</span
+        ><span class="st-val" id="st-state-val"></span>
+      </div>
+      <div class="st-item" id="st-events" style="display: none">
+        <span class="st-tag">@Event</span
+        ><span class="st-val" id="st-events-val"></span>
+      </div>
+      <div class="st-item" id="st-effects" style="display: none">
+        <span class="st-tag">effects</span
+        ><span class="st-val" id="st-effects-val"></span>
+      </div>
+      <div class="st-spacer"></div>
+      <div class="st-item"><span class="st-kbd">⌘↵</span>&nbsp;convert</div>
+    </div>
+
+    <script>
+      // ═══════════════════════════════════════════════════════════════════════
+      //  AST CORE — parse + programmatic class builder
+      // ═══════════════════════════════════════════════════════════════════════
+
+      function parseToAST(src, isModule = true) {
+        const r = Babel.transform(src, {
+          ast: true,
+          code: false,
+          configFile: false,
+          babelrc: false,
+          filename: "comp.jsx",
+          parserOpts: {
+            sourceType: isModule ? "module" : "script",
+            plugins: [
+              "jsx",
+              "classProperties",
+              "objectRestSpread",
+              "decorators-legacy",
+            ],
+          },
+          plugins: [],
+        });
+        if (!r?.ast) throw new Error("AST generation failed");
+        return r.ast;
+      }
+
+      // ── StencilClassBuilder: builds output purely as an AST, then prints it ──────
+      class StencilClassBuilder {
+        constructor(name) {
+          this.name = name;
+          this.tag = this._kebab(name);
+          this.props = []; // {name, type, default}
+          this.states = []; // {name, type, default}
+          this.events = []; // {name, type}
+          this.methods = []; // {name, params, body, isLifecycle}
+          this.renderBody = null; // raw JSX string
+          this.effects = 0;
+          this.watches = []; // {prop, handler}
+          this.listenEvents = []; // {event, handler}
+        }
+
+        addProp(name, type = "any", defaultVal = undefined) {
+          this.props.push({ name, type, default: defaultVal });
+          return this;
+        }
+        addState(name, type = "any", defaultVal = undefined) {
+          this.states.push({ name, type, default: defaultVal });
+          return this;
+        }
+        addEvent(name, type = "any") {
+          if (!this.events.find((e) => e.name === name))
+            this.events.push({ name, type });
+          return this;
+        }
+        addMethod(name, params = [], body = [], isLifecycle = false) {
+          this.methods.push({ name, params, body, isLifecycle });
+          return this;
+        }
+        addWatch(prop, handler) {
+          this.watches.push({ prop, handler });
+          return this;
+        }
+        addListen(event, handler) {
+          this.listenEvents.push({ event, handler });
+          return this;
+        }
+        setRender(jsxStr) {
+          this.renderBody = jsxStr;
+          return this;
+        }
+        incEffects() {
+          this.effects++;
+          return this;
+        }
+
+        _kebab(s) {
+          return s
+            .replace(/([a-z])([A-Z])/g, "$1-$2")
+            .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2")
+            .toLowerCase();
+        }
+        _defStr(d) {
+          return d !== undefined ? ` = ${JSON.stringify(d)}` : "";
+        }
+
+        emit() {
+          const imports = ["Component", "h"];
+          if (this.props.length) imports.push("Prop");
+          if (this.states.length) imports.push("State");
+          if (this.events.length) imports.push("Event", "EventEmitter");
+          if (this.watches.length) imports.push("Watch");
+          if (this.listenEvents.length) imports.push("Listen");
+          if (this.effects > 0) imports.push("Watch");
+
+          const L = [];
+          L.push(
+            `import { ${[...new Set(imports)].join(", ")} } from '@stencil/core';`,
+            "",
+          );
+          L.push("@Component({");
+          L.push(`  tag: '${this.tag}',`);
+          L.push(`  styleUrl: '${this.tag}.css',`);
+          L.push("  shadow: true,");
+          L.push("})");
+          L.push(`export class ${this.name} {`);
+
+          if (this.props.length) {
+            L.push("");
+            this.props.forEach((p) =>
+              L.push(
+                `  @Prop() ${p.name}: ${p.type}${this._defStr(p.default)};`,
+              ),
+            );
+          }
+          if (this.states.length) {
+            L.push("");
+            this.states.forEach((s) =>
+              L.push(
+                `  @State() ${s.name}: ${s.type}${this._defStr(s.default)};`,
+              ),
+            );
+          }
+          if (this.events.length) {
+            L.push("");
+            this.events.forEach((e) =>
+              L.push(`  @Event() ${e.name}: EventEmitter<${e.type}>;`),
+            );
+          }
+          this.watches.forEach((w) => {
+            L.push("");
+            L.push(`  @Watch('${w.prop}')`);
+            L.push(`  ${w.handler}(newVal: any, oldVal: any) {`);
+            L.push("    // handle prop/state change");
+            L.push("  }");
+          });
+          this.listenEvents.forEach((le) => {
+            L.push("");
+            L.push(`  @Listen('${le.event}')`);
+            L.push(`  ${le.handler}(event: CustomEvent) {`);
+            L.push("    // handle DOM event");
+            L.push("  }");
+          });
+          if (this.effects > 0) {
+            L.push(
+              "",
+              "  componentDidLoad() {",
+              "    // converted from useEffect — runs once after mount",
+              "  }",
+            );
+            L.push(
+              "",
+              "  componentDidUpdate() {",
+              "    // converted from useEffect with deps",
+              "  }",
+            );
+          }
+          this.methods.forEach((m) => {
+            L.push("");
+            L.push(`  ${m.name}(${m.params.join(", ")}) {`);
+            m.body.forEach((bl) => L.push("    " + bl));
+            L.push("  }");
+          });
+          L.push("", "  render() {");
+          if (this.renderBody) {
+            const body = this.renderBody.trimStart().startsWith("return")
+              ? this.renderBody
+              : `return (\n${this.renderBody}\n);`;
+            body.split("\n").forEach((jl) => L.push("    " + jl));
+          } else {
+            L.push(
+              "    return (",
+              "      <Host>",
+              "        {/* render output */}",
+              "      </Host>",
+              "    );",
+            );
+          }
+          L.push("  }", "}");
+          return L.join("\n");
+        }
+
+        getMeta() {
+          return {
+            props: this.props.map((p) => p.name),
+            states: this.states.map((s) => s.name),
+            events: this.events.map((e) => e.name),
+            effects: this.effects,
+          };
+        }
+      }
+
+      // ── AST traversal helpers ────────────────────────────────────────────────────
+      const AST = {
+        slice(node, src) {
+          return node?.start != null ? src.slice(node.start, node.end) : "";
+        },
+        literal(node) {
+          if (!node) return undefined;
+          const t = node.type;
+          if (t === "StringLiteral") return node.value;
+          if (t === "NumericLiteral") return node.value;
+          if (t === "BooleanLiteral") return node.value;
+          if (t === "NullLiteral") return null;
+          if (t === "ArrayExpression") return [];
+          if (t === "ObjectExpression") return {};
+          if (t === "Identifier" && node.name === "undefined") return undefined;
+          return undefined;
+        },
+        stripIndent(raw) {
+          const lines = raw.split("\n");
+          const min = lines
+            .filter((l) => l.trim())
+            .reduce((m, l) => Math.min(m, l.match(/^\s*/)[0].length), 99);
+          return lines
+            .map((l) => l.slice(min))
+            .filter(
+              (l, i, a) =>
+                !(i === 0 && !l.trim()) && !(i === a.length - 1 && !l.trim()),
+            );
+        },
+        bodyLines(node, src) {
+          const b = node.body ?? node;
+          if (b?.type === "BlockStatement")
+            return AST.stripIndent(src.slice(b.start + 1, b.end - 1));
+          if (b) return [`return ${AST.slice(b, src).trim()};`];
+          return ["// TODO"];
+        },
+        params(node) {
+          return (node.params || []).map((p) => {
+            if (p.type === "Identifier") return p.name;
+            if (p.type === "AssignmentPattern")
+              return p.left.name + " = " + AST.slice(p.right, "");
+            if (p.type === "ObjectPattern")
+              return (
+                "{" +
+                p.properties.map((pr) => pr.key?.name || "...").join(", ") +
+                "}"
+              );
+            if (p.type === "RestElement") return "..." + p.argument.name;
+            return "_";
+          });
+        },
+        decoratorName(dec) {
+          if (!dec) return null;
+          const e = dec.expression;
+          if (e.type === "Identifier") return e.name;
+          if (e.type === "CallExpression")
+            return e.callee?.name || e.callee?.property?.name;
+          return null;
+        },
+        decoratorArg(dec, key) {
+          const e = dec?.expression;
+          if (e?.type !== "CallExpression") return null;
+          const arg = e.arguments?.[0];
+          if (!arg || arg.type !== "ObjectExpression") return null;
+          const prop = arg.properties.find(
+            (p) => p.key?.name === key || p.key?.value === key,
+          );
+          return prop?.value ?? null;
+        },
+        findDecorator(node, name) {
+          return (node.decorators || []).find(
+            (d) => AST.decoratorName(d) === name,
+          );
+        },
+        refsToThis(lines) {
+          return lines.map((l) =>
+            l
+              .replace(/this\.props\.([a-zA-Z_$][\w$]*)/g, "this.$1")
+              .replace(/this\.state\.([a-zA-Z_$][\w$]*)/g, "this.$1")
+              .replace(/this\.setState\(\{\s*([^}]+)\}\)/g, (_, inner) =>
+                inner
+                  .split(",")
+                  .map((s) => {
+                    const [k, v] = s.split(":").map((x) => x.trim());
+                    return `this.${k} = ${v || k}`;
+                  })
+                  .join("; "),
+              ),
+          );
+        },
+        convertJSX(jsx) {
+          return (jsx || "")
+            .replace(/className=/g, "class=")
+            .replace(/htmlFor=/g, "for=")
+            .replace(/\s+key=\{[^}]+\}/g, "")
+            .replace(/defaultValue=/g, "value=")
+            .replace(/this\.props\.([a-zA-Z_$][\w$]*)/g, "this.$1")
+            .replace(/this\.state\.([a-zA-Z_$][\w$]*)/g, "this.$1");
+        },
+        isHookCall(stmt, hook) {
+          const check = (n) =>
+            n?.type === "CallExpression" &&
+            (n.callee?.name === hook || n.callee?.property?.name === hook);
+          if (stmt.type === "ExpressionStatement")
+            return check(stmt.expression);
+          if (stmt.type === "VariableDeclaration")
+            return stmt.declarations.some((d) => check(d.init));
+          return false;
+        },
+      };
+
+      // ═══════════════════════════════════════════════════════════════════════
+      //  PLUGIN REGISTRY
+      // ═══════════════════════════════════════════════════════════════════════
+      const Registry = (() => {
+        const p = {};
+        return {
+          reg(x) {
+            p[x.id] = x;
+          },
+          get(id) {
+            return p[id];
+          },
+        };
+      })();
+
+      // ═══════════════════════════════════════════════════════════════════════
+      //  PLUGIN: React → StencilJS
+      // ═══════════════════════════════════════════════════════════════════════
+      Registry.reg({
+        id: "react",
+        label: "React",
+        inputFile: "component.jsx",
+        inputLang: "JSX",
+        samples: {},
+        convert(src) {
+          const ast = parseToAST(src);
+          let classNode = null;
+          for (const n of ast.program.body) {
+            const d = n.type === "ExportDefaultDeclaration" ? n.declaration : n;
+            if (d.type === "ClassDeclaration" || d.type === "ClassExpression") {
+              classNode = d;
+              break;
+            }
+          }
+          return classNode
+            ? this._class(classNode, src)
+            : this._functional(ast, src);
+        },
+
+        _class(cls, src) {
+          const builder = new StencilClassBuilder(
+            cls.id?.name || "MyComponent",
+          );
+          const propsSet = new Set();
+          const lcMap = {
+            componentDidMount: "componentDidLoad",
+            componentWillUnmount: "disconnectedCallback",
+            componentDidUpdate: "componentDidUpdate",
+            componentWillMount: "componentWillLoad",
+          };
+          const collectProps = (txt) => {
+            for (const m of txt.matchAll(/this\.props\.([a-zA-Z_$][\w$]*)/g))
+              propsSet.add(m[1]);
+          };
+
+          for (const member of cls.body?.body || []) {
+            const mName = member.key?.name;
+            if (member.type === "ClassMethod") {
+              collectProps(AST.slice(member, src));
+              if (mName === "constructor") {
+                for (const stmt of member.body?.body || []) {
+                  if (
+                    stmt.type !== "ExpressionStatement" ||
+                    stmt.expression.type !== "AssignmentExpression"
+                  )
+                    continue;
+                  const { left, right } = stmt.expression;
+                  if (
+                    left.type !== "MemberExpression" ||
+                    left.object.type !== "ThisExpression"
+                  )
+                    continue;
+                  const n = left.property.name;
+                  if (n === "state" && right.type === "ObjectExpression") {
+                    right.properties.forEach((p) => {
+                      const sn = p.key?.name || p.key?.value;
+                      if (sn) builder.addState(sn, "any", AST.literal(p.value));
+                    });
+                  } else if (
+                    right.type === "ArrowFunctionExpression" ||
+                    right.type === "FunctionExpression"
+                  ) {
+                    if (n && n !== "state")
+                      builder.addMethod(
+                        n,
+                        AST.params(right),
+                        AST.refsToThis(AST.bodyLines(right, src)),
+                      );
+                  }
+                }
+                continue;
+              }
+              if (mName === "render") {
+                for (const s of member.body?.body || [])
+                  if (s.type === "ReturnStatement")
+                    builder.setRender(
+                      AST.convertJSX(AST.slice(s.argument, src)),
+                    );
+                continue;
+              }
+              if (mName in lcMap) {
+                if (lcMap[mName])
+                  builder.addMethod(
+                    lcMap[mName],
+                    [],
+                    AST.refsToThis(AST.bodyLines(member, src)),
+                    true,
+                  );
+                continue;
+              }
+              builder.addMethod(
+                mName,
+                AST.params(member),
+                AST.refsToThis(AST.bodyLines(member, src)),
+              );
+            }
+            if (
+              member.type === "ClassProperty" &&
+              member.value &&
+              (member.value.type === "ArrowFunctionExpression" ||
+                member.value.type === "FunctionExpression")
+            ) {
+              collectProps(AST.slice(member, src));
+              builder.addMethod(
+                mName,
+                AST.params(member.value),
+                AST.refsToThis(AST.bodyLines(member.value, src)),
+              );
+            }
+          }
+
+          const allProps = [...propsSet];
+          allProps
+            .filter((p) => p.startsWith("on") && p.length > 2)
+            .forEach((p) => builder.addEvent(p[2].toLowerCase() + p.slice(3)));
+          allProps
+            .filter((p) => !p.startsWith("on") || p.length <= 2)
+            .forEach((p) => builder.addProp(p));
+          return { code: builder.emit(), meta: builder.getMeta() };
+        },
+
+        _functional(ast, src) {
+          let name = "MyComponent";
+          let topFnNode = null;
+          for (const node of ast.program.body) {
+            if (node.type === "FunctionDeclaration") {
+              name = node.id?.name || name;
+              topFnNode = node;
+              break;
+            }
+            if (node.type === "ExportDefaultDeclaration") {
+              const d = node.declaration;
+              if (d.type === "FunctionDeclaration") {
+                name = d.id?.name || name;
+                topFnNode = d;
+                break;
+              }
+              if (
+                d.type === "ArrowFunctionExpression" ||
+                d.type === "FunctionExpression"
+              ) {
+                topFnNode = d;
+                break;
+              }
+            }
+            if (node.type === "VariableDeclaration") {
+              for (const d of node.declarations) {
+                if (
+                  d.init &&
+                  (d.init.type === "ArrowFunctionExpression" ||
+                    d.init.type === "FunctionExpression")
+                ) {
+                  name = d.id.name;
+                  topFnNode = d.init;
+                  break;
+                }
+              }
+            }
+            if (topFnNode) break;
+          }
+          if (!topFnNode) throw new Error("No component found");
+
+          const builder = new StencilClassBuilder(name);
+
+          // Extract props from destructured param
+          const p0 = (topFnNode.params || [])[0];
+          if (p0?.type === "ObjectPattern") {
+            for (const pp of p0.properties) {
+              if (pp.type === "RestElement") continue;
+              const pName = pp.key?.name;
+              if (!pName) continue;
+              const def =
+                pp.value?.type === "AssignmentPattern"
+                  ? AST.literal(pp.value.right)
+                  : undefined;
+              builder.addProp(pName, "any", def);
+            }
+          }
+
+          // Walk function body
+          const body = topFnNode.body;
+          if (!body || body.type !== "BlockStatement") {
+            builder.setRender(`return (\n  ${AST.slice(body, src)}\n);`);
+          } else {
+            for (const stmt of body.body) {
+              if (AST.isHookCall(stmt, "useState")) {
+                const decl =
+                  stmt.type === "VariableDeclaration"
+                    ? stmt.declarations[0]
+                    : null;
+                if (decl?.id.type === "ArrayPattern") {
+                  const sName = decl.id.elements[0]?.name;
+                  const init = AST.literal(decl.init?.arguments?.[0]);
+                  if (sName) builder.addState(sName, "any", init);
+                }
+                continue;
+              }
+              if (AST.isHookCall(stmt, "useEffect")) {
+                builder.incEffects();
+                continue;
+              }
+              if (
+                AST.isHookCall(stmt, "useCallback") ||
+                AST.isHookCall(stmt, "useMemo")
+              )
+                continue;
+              if (stmt.type === "VariableDeclaration") {
+                for (const d of stmt.declarations) {
+                  if (
+                    d.init &&
+                    (d.init.type === "ArrowFunctionExpression" ||
+                      d.init.type === "FunctionExpression")
+                  ) {
+                    const mName = d.id.name;
+                    builder.addMethod(
+                      mName,
+                      AST.params(d.init),
+                      AST.bodyLines(d.init, src),
+                    );
+                    if (mName.startsWith("on") && mName.length > 2)
+                      builder.addEvent(mName[2].toLowerCase() + mName.slice(3));
+                  }
+                }
+              }
+              if (stmt.type === "FunctionDeclaration")
+                builder.addMethod(
+                  stmt.id.name,
+                  AST.params(stmt),
+                  AST.bodyLines(stmt, src),
+                );
+              if (stmt.type === "ReturnStatement")
+                builder.setRender(
+                  AST.convertJSX(AST.slice(stmt.argument, src)),
+                );
+            }
+          }
+          return { code: builder.emit(), meta: builder.getMeta() };
+        },
+      });
+
+      // ═══════════════════════════════════════════════════════════════════════
+      //  PLUGIN: Angular → StencilJS
+      // ═══════════════════════════════════════════════════════════════════════
+      Registry.reg({
+        id: "angular",
+        label: "Angular",
+        inputFile: "component.ts",
+        inputLang: "TypeScript",
+        samples: {},
+        convert(src) {
+          // Angular uses TypeScript decorators — parse with decorators-legacy plugin
+          const ast = parseToAST(src);
+          let classNode = null;
+          for (const node of ast.program.body) {
+            const n =
+              node.type === "ExportNamedDeclaration"
+                ? node.declaration
+                : node.type === "ExportDefaultDeclaration"
+                  ? node.declaration
+                  : node;
+            if (
+              n?.type === "ClassDeclaration" ||
+              n?.type === "ClassExpression"
+            ) {
+              classNode = n;
+              break;
+            }
+          }
+          if (!classNode) throw new Error("No Angular class component found");
+
+          // Read @Component({ selector }) to derive the Stencil tag
+          const compDec = AST.findDecorator(classNode, "Component");
+          const selectorNode = compDec
+            ? AST.decoratorArg(compDec, "selector")
+            : null;
+          const rawSelector = selectorNode?.value || null;
+
+          // Derive name: strip app- prefix from selector, PascalCase it; fallback to class name
+          let compName =
+            classNode.id?.name?.replace(/Component$/, "") || "MyComponent";
+          if (rawSelector) {
+            compName = rawSelector
+              .replace(/^app-/, "")
+              .split("-")
+              .map((s) => s[0].toUpperCase() + s.slice(1))
+              .join("");
+          }
+
+          const builder = new StencilClassBuilder(compName);
+          if (rawSelector) builder.tag = rawSelector.replace(/^app-/, "");
+
+          const lcMap = {
+            ngOnInit: "componentDidLoad",
+            ngAfterViewInit: "componentDidLoad",
+            ngOnDestroy: "disconnectedCallback",
+            ngOnChanges: "componentDidUpdate",
+            ngAfterContentInit: "componentDidLoad",
+          };
+
+          for (const member of classNode.body?.body || []) {
+            const mName = member.key?.name;
+
+            // @Input() → @Prop()
+            if (member.type === "ClassProperty") {
+              if (AST.findDecorator(member, "Input")) {
+                const typeAnnotation = member.typeAnnotation?.typeAnnotation;
+                const type = this._tsType(typeAnnotation);
+                const def = AST.literal(member.value);
+                builder.addProp(mName, type, def);
+                continue;
+              }
+              // @Output() → @Event()
+              if (AST.findDecorator(member, "Output")) {
+                const evName = mName.endsWith("Change") ? mName : mName;
+                builder.addEvent(evName, "any");
+                continue;
+              }
+              // Regular class property → @State()
+              if (!(member.decorators || []).length) {
+                const typeAnnotation = member.typeAnnotation?.typeAnnotation;
+                const type = this._tsType(typeAnnotation);
+                const def = AST.literal(member.value);
+                builder.addState(mName, type, def);
+              }
+              continue;
+            }
+
+            if (member.type === "ClassMethod") {
+              // Lifecycle
+              if (mName in lcMap) {
+                const stName = lcMap[mName];
+                // Merge duplicate lifecycle (multiple ng hooks → same stencil hook)
+                const existing = builder.methods.find((m) => m.name === stName);
+                const lines = AST.bodyLines(member, src);
+                if (existing) existing.body.push(...lines);
+                else builder.addMethod(stName, [], lines, true);
+                continue;
+              }
+              // Skip constructor
+              if (mName === "constructor") continue;
+              // Regular method — convert Angular event emitter calls: this.foo.emit(x) → this.foo.emit(x) stays same ✓
+              const bodyLines = AST.bodyLines(member, src);
+              builder.addMethod(mName, AST.params(member), bodyLines);
+            }
+          }
+
+          // Convert Angular template interpolation {{ x }} → {this.x} in JSX
+          const templateNode = compDec
+            ? AST.decoratorArg(compDec, "template")
+            : null;
+          let templateSrc = "";
+          if (templateNode) {
+            templateSrc =
+              templateNode.type === "TemplateLiteral"
+                ? src.slice(templateNode.start + 1, templateNode.end - 1) // strip backticks
+                : templateNode.value || "";
+          }
+          if (templateSrc)
+            builder.setRender(this._angularTemplateToJSX(templateSrc));
+          else
+            builder.setRender(
+              "return (\n  <Host>\n    {/* convert template manually */}\n  </Host>\n);",
+            );
+
+          return { code: builder.emit(), meta: builder.getMeta() };
+        },
+
+        _tsType(node) {
+          if (!node) return "any";
+          const t = node.type;
+          if (t === "TSStringKeyword") return "string";
+          if (t === "TSNumberKeyword") return "number";
+          if (t === "TSBooleanKeyword") return "boolean";
+          if (t === "TSVoidKeyword") return "void";
+          if (t === "TSAnyKeyword") return "any";
+          if (t === "TSArrayType") return this._tsType(node.elementType) + "[]";
+          if (t === "TSTypeReference") return node.typeName?.name || "any";
+          if (t === "TSUnionType")
+            return node.types.map((n) => this._tsType(n)).join(" | ");
+          return "any";
+        },
+
+        _angularTemplateToJSX(tpl) {
+          const jsx = tpl
+            .replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_, expr) => `{this.${expr}}`) // {{ x }} → {this.x}
+            .replace(/\[class\]="([^"]+)"/g, `class={$1}`) // [class]
+            .replace(/\[ngClass\]="([^"]+)"/g, `class={$1}`)
+            .replace(
+              /\(click\)="([^"]+)"/g,
+              (_, h) => `onClick={() => this.${h}}`,
+            ) // (click)
+            .replace(
+              /\(change\)="([^"]+)"/g,
+              (_, h) => `onChange={() => this.${h}}`,
+            )
+            .replace(
+              /\(input\)="([^"]+)"/g,
+              (_, h) => `onInput={() => this.${h}}`,
+            )
+            .replace(
+              /\[(\w+)\]="([^"]+)"/g,
+              (_, attr, val) => `${attr}={this.${val}}`,
+            ) // [attr]="x"
+            .replace(
+              /\*ngIf="([^"]+)"/g,
+              (_, cond) => `hidden={!this.${cond.trim()}}`,
+            )
+            .replace(
+              /\*ngFor="let (\w+) of ([\w.]+)"/g,
+              (_, item, arr) =>
+                `/* map ${arr} */ // convert: {this.${arr}.map(${item} => (`,
+            )
+            .replace(/<\/(\w[\w-]*)>/g, "</$1>")
+            .trim();
+          return `return (\n  ${jsx.split("\n").join("\n  ")}\n);`;
+        },
+      });
+
+      // ═══════════════════════════════════════════════════════════════════════
+      //  PLUGIN: Vue SFC → StencilJS
+      // ═══════════════════════════════════════════════════════════════════════
+      Registry.reg({
+        id: "vue",
+        label: "Vue",
+        inputFile: "component.vue",
+        inputLang: "Vue SFC",
+        samples: {},
+        convert(src) {
+          // Split SFC into blocks without regex — find <template>, <script>, <style>
+          const blocks = this._parseSFC(src);
+          if (!blocks.script)
+            throw new Error("No <script> block found in Vue SFC");
+          return blocks.scriptSetup
+            ? this._composition(blocks, src)
+            : this._options(blocks, src);
+        },
+
+        _parseSFC(src) {
+          const blocks = {};
+          // Extract each top-level block by finding opening/closing tags manually
+          // to avoid regex greediness issues with nested content
+          const extractBlock = (tag, attrFilter) => {
+            const openRe = new RegExp(`<${tag}(\\s[^>]*)?>`, "i");
+            const closeTag = `</${tag}>`;
+            let searchFrom = 0;
+            while (searchFrom < src.length) {
+              const openMatch = openRe.exec(src.slice(searchFrom));
+              if (!openMatch) break;
+              const openStart = searchFrom + openMatch.index;
+              const openEnd = openStart + openMatch[0].length;
+              const attrs = openMatch[1] || "";
+              if (attrFilter && !attrFilter(attrs)) {
+                searchFrom = openEnd;
+                continue;
+              }
+              const closeIdx = src.indexOf(closeTag, openEnd);
+              if (closeIdx === -1) break;
+              const inner = src.slice(openEnd, closeIdx).trim();
+              return { inner, attrs };
+            }
+            return null;
+          };
+
+          const tpl = extractBlock("template");
+          const script = extractBlock("script", (a) => !/setup/i.test(a));
+          const setup = extractBlock("script", (a) => /setup/i.test(a));
+
+          if (tpl) blocks.template = tpl.inner;
+          if (script) blocks.script = script.inner;
+          if (setup) blocks.scriptSetup = setup.inner;
+          if (!blocks.script && blocks.scriptSetup)
+            blocks.script = blocks.scriptSetup;
+          return blocks;
+        },
+
+        _options(blocks, src) {
+          const scriptSrc = blocks.script;
+          const ast = parseToAST(scriptSrc, true);
+
+          // Find the default export object expression
+          let optionsNode = null;
+          for (const node of ast.program.body) {
+            if (node.type === "ExportDefaultDeclaration") {
+              optionsNode = node.declaration;
+              break;
+            }
+          }
+          if (!optionsNode || optionsNode.type !== "ObjectExpression")
+            throw new Error("No default export object found");
+
+          const getProp = (name) =>
+            optionsNode.properties.find(
+              (p) => (p.key?.name || p.key?.value) === name,
+            );
+          const getStr = (name) => {
+            const p = getProp(name);
+            return p?.value?.value || null;
+          };
+
+          const rawName = getStr("name") || "MyComponent";
+          const builder = new StencilClassBuilder(rawName);
+
+          const lcMap = {
+            mounted: "componentDidLoad",
+            created: "componentWillLoad",
+            beforeUnmount: "disconnectedCallback",
+            beforeDestroy: "disconnectedCallback",
+            updated: "componentDidUpdate",
+          };
+
+          // props: { propName: { type, default } }
+          const propsProp = getProp("props");
+          if (propsProp?.value?.type === "ObjectExpression") {
+            for (const pp of propsProp.value.properties) {
+              const pName = pp.key?.name || pp.key?.value;
+              if (!pName) continue;
+              let type = "any",
+                def;
+              if (pp.value.type === "ObjectExpression") {
+                const typeProp = pp.value.properties.find(
+                  (p) => (p.key?.name || p.key?.value) === "type",
+                );
+                const defProp = pp.value.properties.find(
+                  (p) => (p.key?.name || p.key?.value) === "default",
+                );
+                if (typeProp?.value) type = this._vueType(typeProp.value);
+                if (defProp?.value)
+                  def =
+                    AST.literal(defProp.value) ??
+                    scriptSrc.slice(defProp.value.start, defProp.value.end);
+              } else if (pp.value.type === "Identifier") {
+                type = this._vueType(pp.value);
+              }
+              builder.addProp(pName, type, def);
+            }
+          }
+
+          // emits: ['name', ...]
+          const emitsProp = getProp("emits");
+          if (emitsProp?.value?.type === "ArrayExpression") {
+            emitsProp.value.elements.forEach((el) => {
+              if (el?.value) builder.addEvent(el.value, "any");
+            });
+          }
+
+          // data() → @State
+          const dataProp = getProp("data");
+          if (
+            dataProp?.value?.type === "FunctionExpression" ||
+            dataProp?.value?.type === "ArrowFunctionExpression"
+          ) {
+            const dataFn = dataProp.value;
+            for (const stmt of dataFn.body?.body || []) {
+              if (
+                stmt.type === "ReturnStatement" &&
+                stmt.argument?.type === "ObjectExpression"
+              ) {
+                stmt.argument.properties.forEach((p) => {
+                  const sName = p.key?.name || p.key?.value;
+                  if (sName)
+                    builder.addState(sName, "any", AST.literal(p.value));
+                });
+              }
+            }
+          }
+
+          // methods
+          const methodsProp = getProp("methods");
+          if (methodsProp?.value?.type === "ObjectExpression") {
+            for (const mp of methodsProp.value.properties) {
+              const mName = mp.key?.name || mp.key?.value;
+              if (!mName) continue;
+              if (mName in lcMap) {
+                builder.addMethod(
+                  lcMap[mName],
+                  [],
+                  this._vueBodyLines(mp.value || mp, scriptSrc),
+                  true,
+                );
+                continue;
+              }
+              builder.addMethod(
+                mName,
+                AST.params(mp.value || mp),
+                this._vueBodyLines(mp.value || mp, scriptSrc),
+              );
+            }
+          }
+
+          // lifecycle hooks at top level of options
+          Object.entries(lcMap).forEach(([vueHook, stencilHook]) => {
+            const p = getProp(vueHook);
+            if (p)
+              builder.addMethod(
+                stencilHook,
+                [],
+                this._vueBodyLines(p.value || p, scriptSrc),
+                true,
+              );
+          });
+
+          if (blocks.template)
+            builder.setRender(this._vueTemplateToJSX(blocks.template));
+          return { code: builder.emit(), meta: builder.getMeta() };
+        },
+
+        _composition(blocks, src) {
+          const scriptSrc = blocks.scriptSetup || blocks.script;
+          const ast = parseToAST(scriptSrc, true);
+          const rawName = "MyComponent";
+
+          // Try to get name from defineOptions or filename fallback
+          const builder = new StencilClassBuilder(rawName);
+          const isCall = (node, name) =>
+            node?.type === "CallExpression" &&
+            (node.callee?.name === name ||
+              node.callee?.property?.name === name);
+
+          for (const node of ast.program.body) {
+            // const props = defineProps({...})
+            if (node.type === "VariableDeclaration") {
+              for (const d of node.declarations) {
+                const init = d.init;
+                if (!init) continue;
+                // defineProps
+                if (isCall(init, "defineProps")) {
+                  const arg = init.arguments?.[0];
+                  if (arg?.type === "ObjectExpression") {
+                    for (const pp of arg.properties) {
+                      const pName = pp.key?.name || pp.key?.value;
+                      if (!pName) continue;
+                      let type = "any",
+                        def;
+                      if (pp.value?.type === "ObjectExpression") {
+                        const tp = pp.value.properties.find(
+                          (p) => (p.key?.name || p.key?.value) === "type",
+                        );
+                        const dp = pp.value.properties.find(
+                          (p) => (p.key?.name || p.key?.value) === "default",
+                        );
+                        if (tp?.value) type = this._vueType(tp.value);
+                        if (dp?.value) def = AST.literal(dp.value);
+                      }
+                      builder.addProp(pName, type, def);
+                    }
+                  }
+                  continue;
+                }
+                // defineEmits
+                if (isCall(init, "defineEmits")) {
+                  const arg = init.arguments?.[0];
+                  if (arg?.type === "ArrayExpression")
+                    arg.elements.forEach((el) => {
+                      if (el?.value) builder.addEvent(el.value, "any");
+                    });
+                  continue;
+                }
+                // ref() → @State
+                if (isCall(init, "ref")) {
+                  const sName = d.id?.name;
+                  if (sName)
+                    builder.addState(
+                      sName,
+                      "any",
+                      AST.literal(init.arguments?.[0]),
+                    );
+                  continue;
+                }
+                // computed() — skip, note in comment
+                if (isCall(init, "computed")) {
+                  const sName = d.id?.name;
+                  if (sName) builder.addState(sName, "any", undefined);
+                }
+              }
+            }
+
+            // onMounted / onUnmounted etc
+            if (
+              node.type === "ExpressionStatement" &&
+              isCall(node.expression, "onMounted")
+            )
+              builder.addMethod(
+                "componentDidLoad",
+                [],
+                ["// onMounted body — move logic here"],
+                true,
+              );
+            if (
+              node.type === "ExpressionStatement" &&
+              isCall(node.expression, "onUnmounted")
+            )
+              builder.addMethod(
+                "disconnectedCallback",
+                [],
+                ["// onUnmounted cleanup here"],
+                true,
+              );
+            if (
+              node.type === "ExpressionStatement" &&
+              isCall(node.expression, "onUpdated")
+            )
+              builder.addMethod(
+                "componentDidUpdate",
+                [],
+                ["// onUpdated body here"],
+                true,
+              );
+            if (
+              node.type === "ExpressionStatement" &&
+              isCall(node.expression, "watch")
+            ) {
+              const args = node.expression.arguments;
+              if (args[0]?.name)
+                builder.addWatch(
+                  args[0].name,
+                  "on" +
+                    args[0].name[0].toUpperCase() +
+                    args[0].name.slice(1) +
+                    "Changed",
+                );
+            }
+
+            // function declarations
+            if (node.type === "FunctionDeclaration") {
+              builder.addMethod(
+                node.id.name,
+                AST.params(node),
+                AST.bodyLines(node, scriptSrc).map((l) =>
+                  l.replace(/\.value\b/g, ""),
+                ),
+              );
+            }
+          }
+
+          if (blocks.template)
+            builder.setRender(this._vueTemplateToJSX(blocks.template));
+          return { code: builder.emit(), meta: builder.getMeta() };
+        },
+
+        _vueType(node) {
+          if (!node) return "any";
+          const n = node.name || "";
+          if (n === "String") return "string";
+          if (n === "Number") return "number";
+          if (n === "Boolean") return "boolean";
+          if (n === "Array") return "any[]";
+          if (n === "Object") return "object";
+          return "any";
+        },
+
+        _vueBodyLines(node, src) {
+          const lines = AST.bodyLines(node, src);
+          return lines.map((l) =>
+            l
+              .replace(/this\.\$emit\(['"](\w+)['"](,\s*)?/g, "this.$1.emit(")
+              .replace(/this\.(\w+)\.value/g, "this.$1"),
+          );
+        },
+
+        _vueTemplateToJSX(tpl) {
+          const jsx = tpl
+            .replace(/\{\{\s*([\w.]+)\s*\}\}/g, "{this.$1}") // {{ x }} → {this.x}
+            .replace(
+              /@click="([^"]+)"/g,
+              (_, h) => `onClick={() => this.${h}()}`,
+            ) // @click
+            .replace(
+              /@change="([^"]+)"/g,
+              (_, h) => `onChange={() => this.${h}()}`,
+            )
+            .replace(
+              /@input="([^"]+)"/g,
+              (_, h) => `onInput={() => this.${h}()}`,
+            )
+            .replace(/v-if="([^"]+)"/g, (_, c) => `hidden={!this.${c.trim()}}`)
+            .replace(
+              /v-model="([^"]+)"/g,
+              (_, m) =>
+                `value={this.${m}} onInput={e => this.${m} = (e.target as HTMLInputElement).value}`,
+            )
+            .replace(
+              /:(\w+)="([^"]+)"/g,
+              (_, attr, val) => `${attr}={this.${val}}`,
+            ) // :attr binding
+            .replace(
+              /v-for="(\w+) in ([\w.]+)"/g,
+              (_, item, arr) => `/* convert: {this.${arr}.map(${item} => (`,
+            )
+            .trim();
+          return `return (\n  ${jsx.split("\n").join("\n  ")}\n);`;
+        },
+      });
+
+      // ═══════════════════════════════════════════════════════════════════════
+      //  SYNTAX HIGHLIGHT
+      // ═══════════════════════════════════════════════════════════════════════
+      function highlight(code) {
+        return hljs.highlight(code, { language: "typescript" }).value;
+      }
+
+      // ─── Line numbers ──────────────────────────────────────────────────────
+      function updateLineNums(id, text) {
+        const el = document.getElementById(id);
+        const count = Math.max(1, text.split("\n").length);
+        el.innerHTML = Array.from(
+          { length: count },
+          (_, i) => `<span class="line-num">${i + 1}</span>`,
+        ).join("");
+      }
+
+      // ─── UI ────────────────────────────────────────────────────────────────
+      let activeSource = "react";
+
+      function setSource(id) {
+        activeSource = id;
+        const plugin = Registry.get(id);
+        document
+          .querySelectorAll(".stab")
+          .forEach((b) =>
+            b.classList.toggle(
+              "active",
+              b.textContent.trim().toLowerCase() === id,
+            ),
+          );
+        document.getElementById("input-filename").textContent =
+          plugin.inputFile;
+        document.getElementById("input-lang").textContent = plugin.inputLang;
+        renderSamples(plugin);
+        clearAll();
+        updateInputHL("");
+      }
+
+      function renderSamples() {}
+
+      function runConvert() {
+        const src = document.getElementById("inp").value.trim();
+        if (!src) {
+          setStatus("err", "no input");
+          return;
+        }
+        try {
+          const { code, meta } = Registry.get(activeSource).convert(src);
+          _lastOutputCode = code;
+          const out = document.getElementById("out");
+          out.innerHTML = highlight(code);
+          out.className = "output-code";
+          updateLineNums("line-nums-out", code);
+          document.getElementById("conv-badge").style.display = "flex";
+          setStatus("ok", "converted successfully");
+          const show = (id, valId, arr) => {
+            const el = document.getElementById(id);
+            el.style.display = arr.length ? "flex" : "none";
+            if (arr.length)
+              document.getElementById(valId).textContent = arr.join(", ");
+          };
+          show("st-props", "st-props-val", meta.props);
+          show("st-state", "st-state-val", meta.states);
+          show("st-events", "st-events-val", meta.events);
+          const ef = document.getElementById("st-effects");
+          ef.style.display = meta.effects > 0 ? "flex" : "none";
+          document.getElementById("st-effects-val").textContent = meta.effects;
+        } catch (e) {
+          const out = document.getElementById("out");
+          out.textContent =
+            "// Error:\n" + e.message + "\n\n" + (e.stack || "");
+          out.className = "output-code error";
+          document.getElementById("conv-badge").style.display = "none";
+          setStatus("err", e.message.slice(0, 70));
+          clearStats();
+        }
+      }
+
+      function resetOutput() {
+        document.getElementById("out").innerHTML =
+          '<span class="placeholder-msg">// output will appear here</span>';
+        document.getElementById("out").className = "output-code";
+        document.getElementById("line-nums-out").innerHTML = "";
+        document.getElementById("conv-badge").style.display = "none";
+      }
+
+      function clearAll() {
+        document.getElementById("inp").value = "";
+        updateLineNums("line-nums-in", "");
+        resetOutput();
+        setStatus("idle", "ready");
+        clearStats();
+      }
+
+      let _lastOutputCode = "";
+      function copyOutput() {
+        navigator.clipboard.writeText(_lastOutputCode);
+      }
+
+      function setStatus(type, msg) {
+        const c = {
+          ok: "var(--status-ok)",
+          err: "var(--status-err)",
+          idle: "var(--status-idle)",
+        };
+        document.getElementById("st-dot").style.background = c[type] || c.idle;
+        document.getElementById("st-status").textContent = msg;
+      }
+      function clearStats() {
+        ["st-props", "st-state", "st-events", "st-effects"].forEach(
+          (id) => (document.getElementById(id).style.display = "none"),
+        );
+      }
+
+      function updateInputHL(text) {
+        const code = document.getElementById("inp-hl-code");
+        code.innerHTML = text
+          ? hljs.highlight(text, { language: "typescript" }).value
+          : "";
+      }
+
+      document.getElementById("inp").addEventListener("input", function () {
+        updateLineNums("line-nums-in", this.value);
+        updateInputHL(this.value);
+        syncScroll();
+      });
+
+      document.getElementById("inp").addEventListener("scroll", syncScroll);
+
+      function syncScroll() {
+        const ta = document.getElementById("inp");
+        const pre = document.getElementById("inp-hl");
+        pre.scrollTop = ta.scrollTop;
+        pre.scrollLeft = ta.scrollLeft;
+      }
+      document.addEventListener("keydown", (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+          e.preventDefault();
+          runConvert();
+        }
+      });
+
+      renderSamples(Registry.get("react"));
+      updateLineNums("line-nums-in", "");
+    </script>
+  </body>
+</html>
