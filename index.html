@@ -1109,11 +1109,18 @@
 
     function clearAll() {
       document.getElementById("inp").value = "";
+      document.getElementById("inp-hl-code").innerHTML = "";
       updateLineNums("line-nums-in", "");
       document.getElementById("out").innerHTML = '<span class="placeholder-msg">// output will appear here</span>';
+      updateLineNums("line-nums-out", "");
       document.getElementById("st-dot").style.background = "var(--status-idle)";
       document.getElementById("st-status").textContent = "ready";
       document.getElementById("conv-badge").style.display = "none";
+      document.getElementById("st-props").style.display = "none";
+      document.getElementById("st-state").style.display = "none";
+      document.getElementById("st-events").style.display = "none";
+      document.getElementById("st-effects").style.display = "none";
+      _lastOutputCode = "";
     }
 
     let _lastOutputCode = "";
