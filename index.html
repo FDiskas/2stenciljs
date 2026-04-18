@@ -614,11 +614,12 @@
         code: false,
         configFile: false,
         babelrc: false,
-        filename: "comp.jsx",
+        filename: "comp.tsx",
         parserOpts: {
           sourceType: isModule ? "module" : "script",
           plugins: [
             "jsx",
+            ["typescript", { isTSX: true }],
             "classProperties",
             "objectRestSpread",
             "decorators-legacy",
@@ -1127,10 +1128,16 @@
     document.getElementById("inp").addEventListener("input", function () {
       updateLineNums("line-nums-in", this.value);
       document.getElementById("inp-hl-code").innerHTML = highlight(this.value);
-      const ta = document.getElementById("inp");
-      const pre = document.getElementById("inp-hl");
-      pre.scrollTop = ta.scrollTop;
-      pre.scrollLeft = ta.scrollLeft;
+    });
+
+    document.getElementById("inp").addEventListener("scroll", function () {
+      document.getElementById("inp-hl").scrollTop = this.scrollTop;
+      document.getElementById("inp-hl").scrollLeft = this.scrollLeft;
+      document.getElementById("line-nums-in").scrollTop = this.scrollTop;
+    });
+
+    document.getElementById("out").addEventListener("scroll", function () {
+      document.getElementById("line-nums-out").scrollTop = this.scrollTop;
     });
 
     document.addEventListener("keydown", (e) => {
